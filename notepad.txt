@@ -1,21 +1,19 @@
-// File: smart_pen_esp32.ino
-// Requires: Wire, Adafruit_MPU6050 or MPU6050 library
+
 #include <Wire.h>
-#include "MPU6050.h" // simple MPU6050 class (or use Adafruit_MPU6050 if installed)
+#include "MPU6050.h" 
 
-MPU6050 mpu; // if using a different lib, adapt calls
-
-const int FSR_PIN = 34;      // ADC pin for force sensor
-const int TIP_SWITCH_PIN = 13; // digital pin for tip pressed
+MPU6050 mpu; 
+const int FSR_PIN = 34;      
+const int TIP_SWITCH_PIN = 13; 
 unsigned long lastMillis = 0;
-const unsigned int INTERVAL_MS = 20; // 50 Hz
+const unsigned int INTERVAL_MS = 20; 
 
 void setup() {
   Serial.begin(115200);
   Wire.begin();
   pinMode(TIP_SWITCH_PIN, INPUT_PULLUP);
 
-  // init MPU (adapt to library)
+  
   if (!mpu.begin()) {
     Serial.println("{\"error\":\"MPU init failed\"}");
     while (1) delay(1000);
@@ -31,7 +29,7 @@ void loop() {
   if (now - lastMillis < INTERVAL_MS) return;
   lastMillis = now;
 
-  // read sensors
+  
   float ax, ay, az, gx, gy, gz;
   mpu.readAcceleration(&ax, &ay, &az);
   mpu.readGyro(&gx, &gy, &gz);
@@ -40,7 +38,7 @@ void loop() {
   float fsr_voltage = (fsr_raw / 4095.0) * 3.3; // ESP32 12-bit ADC
   bool tip = digitalRead(TIP_SWITCH_PIN) == LOW; // pressed if LOW (adjust if wiring differs)
 
-  // Build JSON line (compact)
+  
   Serial.print("{");
   Serial.print("\"t\":"); Serial.print(now);
   Serial.print(",\"ax\":"); Serial.print(ax,4);
@@ -53,3 +51,4 @@ void loop() {
   Serial.print(",\"tip\":"); Serial.print(tip?1:0);
   Serial.println("}");
 }
+
